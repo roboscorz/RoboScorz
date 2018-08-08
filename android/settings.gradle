@@ -1,0 +1,3 @@
+rootProject.name = 'RoboScorz'
+
+include ':app'

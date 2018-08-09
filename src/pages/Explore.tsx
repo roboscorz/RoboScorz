@@ -1,11 +1,18 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import MapView from 'react-native-maps';
 
 export default class Explore extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>Explore</Text>
+        <MapView
+          provider="google"
+          showsUserLocation={true}
+          loadingEnabled={true}
+          style={styles.map}
+       >
+       </MapView>
       </View>
     );
   }
@@ -18,9 +25,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
+  map: {
+    ...StyleSheet.absoluteFillObject,
   }
 });

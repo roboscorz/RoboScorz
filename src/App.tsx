@@ -12,7 +12,7 @@ export default class App extends Component {
   render() {
     return (
       <View style={{ flex: 1 }}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
         <RootNavigator/>
       </View>
     );

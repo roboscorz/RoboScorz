@@ -11,10 +11,17 @@
 #import <React/RCTRootView.h>
 #import "RNSplashScreen.h"
 
+@import GoogleMaps;
+
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  // Read the Keys.plist file
+  NSDictionary *dictionary = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Keys" ofType:@"plist"]];
+  NSString *mapsApiKey = [dictionary objectForKey:@"MAPS_API_KEY"];
+  // Set the Google Maps API key
+  [GMSServices provideAPIKey: mapsApiKey];
   NSURL *jsCodeLocation;
 
   jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];

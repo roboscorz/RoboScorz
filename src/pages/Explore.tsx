@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import MapView from 'react-native-maps';
-import { RoboScorzTheme } from '../theme/RoboScorzTheme';
+import { RoboScorzTheme } from '../theme';
 
 export default class Explore extends Component {
   render() {
@@ -12,7 +12,7 @@ export default class Explore extends Component {
           showsUserLocation={true}
           loadingEnabled={true}
           style={styles.map}
-      >
+        >
         </MapView>
       </View>
     );

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import RootNavigator from './navigators/RootNavigatior';
 import SplashScreen from 'react-native-splash-screen';
 import { StatusBar, View } from 'react-native';
-import { ThemeProvider, RoboScorzTheme } from './theme';
+import { Theme, RoboScorzTheme } from './theme';
 export default class App extends Component {
 
   componentDidMount() {
@@ -11,10 +11,10 @@ export default class App extends Component {
 
   render() {
     return (
-      <ThemeProvider value={RoboScorzTheme}>
+      <Theme theme={RoboScorzTheme}>
         <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
         <RootNavigator/>
-      </ThemeProvider>
+      </Theme>
     );
   }
 }

@@ -1,16 +1,21 @@
 import React, { StatelessComponent, Component } from 'react';
 import { Text, TextProps } from 'react-native';
-import { SurfaceBackground, TextEmphasis, ThemeData, TextStyleName } from '../Theme';
-import { VariantConsumer, VariantProvider } from '../ThemeVariantContext';
-import { ThemeVariant } from '..';
-import { ThemeConsumer, ThemeProvider } from '../ThemeContext';
-import { SurfaceConsumer, SurfaceProvider } from '../SurfaceContext';
+import {
+  Theme,
+  SurfaceBackground,
+  TextEmphasis,
+  ThemeData,
+  TextStyleName,
+  ThemeConsumer,
+  ThemeVariant
+} from '../Theme';
 
 export interface ThemeTextProps extends TextProps {
   theme?: ThemeData;
-  variant?: ThemeVariant;
+  themeVariant?: ThemeVariant;
   surface?: SurfaceBackground;
   emphasis?: TextEmphasis;
+  color?: 'light' | 'dark' | string;
 }
 
 function makeProps(
@@ -19,15 +24,18 @@ function makeProps(
   variant: ThemeVariant,
   surface: SurfaceBackground,
   styleName: string,
+  color?: string,
   emphasis?: TextEmphasis
 ): ThemeTextProps {
   return Object.assign({}, props, {
     variant: undefined,
     emphasis: undefined,
+    color: undefined,
     style: Object.assign(
       {},
       props.style,
-      (theme.textTheme(variant, surface, emphasis) as any)[styleName]
+      (theme.textTheme(variant, surface, emphasis) as any)[styleName],
+      color ? { color } : {}
     )
   });
 }
@@ -36,45 +44,28 @@ export class ThemeText extends Component<ThemeTextProps & { styleName: TextStyle
   render() {
     let content = (
       <ThemeConsumer>
-        {theme => (
-          <VariantConsumer>
-            {variant => (
-              <SurfaceConsumer>
-                {surface => (
-                  <Text {...makeProps(
-                    this.props,
-                    theme,
-                    variant,
-                    surface,
-                    this.props.styleName,
-                    this.props.emphasis
-                  )}/>
-                )}
-              </SurfaceConsumer>
-            )}
-          </VariantConsumer>
+        {(theme, variant, surface) => (
+          <Text {...makeProps(
+            this.props,
+            theme,
+            variant,
+            surface,
+            this.props.styleName,
+            this.props.color,
+            this.props.emphasis
+          )}/>
         )}
       </ThemeConsumer>
     );
-    if (this.props.surface) {
+    if (this.props.theme || this.props.themeVariant || this.props.surface) {
       content = (
-        <SurfaceProvider value={this.props.surface}>
+        <Theme
+          theme={this.props.theme}
+          variant={this.props.themeVariant}
+          surface={this.props.surface}
+        >
           {content}
-        </SurfaceProvider>
-      );
-    }
-    if (this.props.variant) {
-      content = (
-        <VariantProvider value={this.props.variant}>
-          {content}
-        </VariantProvider>
-      );
-    }
-    if (this.props.theme) {
-      content = (
-        <ThemeProvider value={this.props.theme}>
-          {content}
-        </ThemeProvider>
+        </Theme>
       );
     }
     return content;

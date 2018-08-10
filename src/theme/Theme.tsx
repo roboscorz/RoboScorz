@@ -1,4 +1,8 @@
+import React, { Component, createContext } from 'react';
 import { TextStyle } from 'react-native';
+import { ThemeContext } from './ThemeContext';
+import { ThemeVariantContext } from './ThemeVariantContext';
+import { SurfaceContext } from './SurfaceContext';
 
 export type MaterialColor = {
   50: string;
@@ -119,3 +123,77 @@ export type ThemeVariantData<T> = {
   lightVariant: T;
   darkVariant: T;
 };
+
+export interface VariantProviderProps {
+  variant: ThemeVariant;
+}
+
+export class VariantProvider extends Component<VariantProviderProps> {
+  render() {
+    return (
+      <ThemeVariantContext.Provider value={this.props.variant}>
+        {this.props.children}
+      </ThemeVariantContext.Provider>
+    );
+  }
+}
+
+export interface SurfaceProviderProps {
+  surface: SurfaceBackground;
+}
+
+export class SurfaceProvider extends Component<SurfaceProviderProps> {
+  render() {
+    return (
+      <SurfaceContext.Provider value={this.props.surface}>
+        {this.props.children}
+      </SurfaceContext.Provider>
+    );
+  }
+}
+
+export interface ThemeProviderProps {
+  theme?: ThemeData;
+  variant?: ThemeVariant;
+  surface?: SurfaceBackground;
+}
+
+export class Theme extends Component<ThemeProviderProps> {
+  render() {
+    return (
+      <ThemeConsumer>
+        {(theme, variant, surface) => (
+          <ThemeContext.Provider value={this.props.theme || theme}>
+            <ThemeVariantContext.Provider value={this.props.variant || variant}>
+              <SurfaceContext.Provider value={this.props.surface || surface}>
+                {this.props.children}
+              </SurfaceContext.Provider>
+            </ThemeVariantContext.Provider>
+          </ThemeContext.Provider>
+        )}
+      </ThemeConsumer>
+    );
+  }
+}
+
+export interface ThemeConsumerProps {
+  children: (theme: ThemeData, variant: ThemeVariant, surface: SurfaceBackground) => JSX.Element;
+}
+
+export class ThemeConsumer extends Component<ThemeConsumerProps> {
+  render() {
+    return (
+      <ThemeContext.Consumer>
+        {theme => (
+          <ThemeVariantContext.Consumer>
+            {variant => (
+              <SurfaceContext.Consumer>
+                {surface => this.props.children(theme, variant, surface)}
+              </SurfaceContext.Consumer>
+            )}
+          </ThemeVariantContext.Consumer>
+        )}
+      </ThemeContext.Consumer>
+    );
+  }
+}

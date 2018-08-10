@@ -85,7 +85,7 @@ export type PaddingData = {
   exLarge: number;
 };
 
-export type RawThemeData = {
+export type ThemeData = {
   color: ColorData;
   primary: string;
   secondary: string;
@@ -97,7 +97,7 @@ export type RawThemeData = {
   backgroundColor: string;
 };
 
-export interface ThemeData {
+export interface ThemeBuilder {
   defaultVariant: ThemeVariant;
   color(variant?: ThemeVariant): ColorData;
   primary(variant?: ThemeVariant): string;
@@ -116,7 +116,10 @@ export interface ThemeData {
     surface?: SurfaceBackground,
     variant?: ThemeVariant
   ): string;
-  raw(variant?: ThemeVariant): RawThemeData;
+  build(variant?: ThemeVariant,
+    surface?: SurfaceBackground,
+    emphasis?: TextEmphasis
+  ): ThemeData;
 }
 
 export type ThemeVariantData<T> = {
@@ -153,7 +156,7 @@ export class SurfaceProvider extends Component<SurfaceProviderProps> {
 }
 
 export interface ThemeProviderProps {
-  theme?: ThemeData;
+  theme?: ThemeBuilder;
   variant?: ThemeVariant;
   surface?: SurfaceBackground;
 }
@@ -162,8 +165,8 @@ export class Theme extends Component<ThemeProviderProps> {
   render() {
     return (
       <ThemeConsumer>
-        {(theme, variant, surface) => (
-          <ThemeContext.Provider value={this.props.theme || theme}>
+        {(theme, variant, surface, builder) => (
+          <ThemeContext.Provider value={this.props.theme || builder}>
             <ThemeVariantContext.Provider value={this.props.variant || variant}>
               <SurfaceContext.Provider value={this.props.surface || surface}>
                 {this.props.children}
@@ -177,18 +180,25 @@ export class Theme extends Component<ThemeProviderProps> {
 }
 
 export interface ThemeConsumerProps {
-  children: (theme: ThemeData, variant: ThemeVariant, surface: SurfaceBackground) => JSX.Element;
+  children: (
+    theme: ThemeData,
+    variant: ThemeVariant,
+    surface: SurfaceBackground,
+    builder: ThemeBuilder
+  ) => JSX.Element;
 }
 
 export class ThemeConsumer extends Component<ThemeConsumerProps> {
   render() {
     return (
       <ThemeContext.Consumer>
-        {theme => (
+        {builder => (
           <ThemeVariantContext.Consumer>
             {variant => (
               <SurfaceContext.Consumer>
-                {surface => this.props.children(theme, variant, surface)}
+                {surface =>
+                  this.props.children(builder.build(variant), variant, surface, builder)
+                }
               </SurfaceContext.Consumer>
             )}
           </ThemeVariantContext.Consumer>

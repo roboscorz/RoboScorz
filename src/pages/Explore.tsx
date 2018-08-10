@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: RoboScorzTheme.raw('light').surfaceColor.primary,
+    backgroundColor: RoboScorzTheme.build('light').surfaceColor.primary,
   },
   map: {
     ...StyleSheet.absoluteFillObject,

@@ -4,14 +4,14 @@ import {
   Theme,
   SurfaceBackground,
   TextEmphasis,
-  ThemeData,
+  ThemeBuilder,
   TextStyleName,
   ThemeConsumer,
   ThemeVariant
 } from '../Theme';
 
 export interface ThemeTextProps extends TextProps {
-  theme?: ThemeData;
+  theme?: ThemeBuilder;
   themeVariant?: ThemeVariant;
   surface?: SurfaceBackground;
   emphasis?: TextEmphasis;
@@ -20,7 +20,7 @@ export interface ThemeTextProps extends TextProps {
 
 function makeProps(
   props: ThemeTextProps,
-  theme: ThemeData,
+  builder: ThemeBuilder,
   variant: ThemeVariant,
   surface: SurfaceBackground,
   styleName: string,
@@ -34,7 +34,7 @@ function makeProps(
     style: Object.assign(
       {},
       props.style,
-      (theme.textTheme(variant, surface, emphasis) as any)[styleName],
+      (builder.textTheme(variant, surface, emphasis) as any)[styleName],
       color ? { color } : {}
     )
   });
@@ -44,10 +44,10 @@ export class ThemeText extends Component<ThemeTextProps & { styleName: TextStyle
   render() {
     let content = (
       <ThemeConsumer>
-        {(theme, variant, surface) => (
+        {(theme, variant, surface, builder) => (
           <Text {...makeProps(
             this.props,
-            theme,
+            builder,
             variant,
             surface,
             this.props.styleName,

@@ -4,25 +4,26 @@ import ElevatedView from 'react-native-elevated-view';
 import {
   Theme,
   SurfaceBackground,
-  ThemeData,
+  ThemeBuilder,
   ThemeVariant,
   ThemeConsumer,
-  SurfaceProvider
+  SurfaceProvider,
+  ThemeData
 } from '../Theme';
 
 export interface MaterialProps extends ViewProps {
   color?: SurfaceBackground;
   elevation?: number;
   themeVariant?: ThemeVariant;
-  theme?: ThemeData;
+  theme?: ThemeBuilder;
 }
 
 export class Material extends Component<MaterialProps> {
-  private getViewProps(theme: ThemeData, variant: ThemeVariant) {
+  private getViewProps(theme: ThemeData) {
     return Object.assign({}, this.props, {
       color: undefined,
       style: Object.assign({}, this.props.style, {
-        backgroundColor: (theme.surfaceColor(variant) as any)[this.props.color || 'primary']
+        backgroundColor: (theme.surfaceColor as any)[this.props.color || 'primary']
       })
     });
   }
@@ -30,10 +31,10 @@ export class Material extends Component<MaterialProps> {
   render() {
     let content = (
       <ThemeConsumer>
-        {(theme, variant) => (
+        {theme => (
           <SurfaceProvider surface={this.props.color || 'primary'}>
             <ElevatedView
-              {...this.getViewProps(theme, variant)}
+              {...this.getViewProps(theme)}
             />
           </SurfaceProvider>
         )}

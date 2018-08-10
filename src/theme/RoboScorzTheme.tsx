@@ -4,13 +4,13 @@ import {
   ThemeVariantData,
   TextColorData,
   MaterialTextColor,
-  ThemeData,
+  ThemeBuilder,
   ThemeVariant,
   PaddingData,
   SurfaceBackground,
   TextThemeData,
   TextEmphasis,
-  RawThemeData
+  ThemeData
 } from './Theme';
 
 export const Color: ColorData = {
@@ -110,7 +110,7 @@ export const TextColor: TextColorData<ThemeVariantData<MaterialTextColor>> = {
   }
 };
 
-export const RoboScorzTheme: ThemeData = {
+export const RoboScorzTheme: ThemeBuilder = {
   defaultVariant: 'light',
   color(variant?: ThemeVariant): ColorData {
     return Color;
@@ -365,7 +365,11 @@ export const RoboScorzTheme: ThemeData = {
   backgroundColor(variant?: ThemeVariant): string {
     return this.surfaceColor(variant).primary;
   },
-  raw(variant?: ThemeVariant, surface?: SurfaceBackground, emphasis?: TextEmphasis): RawThemeData {
+  build(
+    variant?: ThemeVariant,
+    surface?: SurfaceBackground,
+    emphasis?: TextEmphasis
+  ): ThemeData {
     return {
       color: this.color(variant),
       primary: this.primary(variant),

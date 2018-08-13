@@ -18,35 +18,33 @@ export interface ThemeTextProps extends TextProps {
   color?: 'light' | 'dark' | string;
 }
 
-function makeProps(
-  props: ThemeTextProps,
-  builder: ThemeBuilder,
-  variant: ThemeVariant,
-  surface: SurfaceBackground,
-  styleName: string,
-  color?: string,
-  emphasis?: TextEmphasis
-): ThemeTextProps {
-  return Object.assign({}, props, {
-    variant: undefined,
-    emphasis: undefined,
-    color: undefined,
-    style: Object.assign(
-      {},
-      props.style,
-      (builder.textTheme(variant, surface, emphasis) as any)[styleName],
-      color ? { color } : {}
-    )
-  });
-}
-
 export class ThemeText extends Component<ThemeTextProps & { styleName: TextStyleName }> {
+  makeProps(
+    builder: ThemeBuilder,
+    variant: ThemeVariant,
+    surface: SurfaceBackground,
+    styleName: string,
+    color?: string,
+    emphasis?: TextEmphasis
+  ): ThemeTextProps {
+    return Object.assign({}, this.props, {
+      variant: undefined,
+      emphasis: undefined,
+      color: undefined,
+      style: Object.assign(
+        {},
+        this.props.style,
+        (builder.textTheme(variant, surface, emphasis) as any)[styleName],
+        color ? { color } : {}
+      )
+    });
+  }
+
   render() {
     let content = (
       <ThemeConsumer>
         {(theme, variant, surface, builder) => (
-          <Text {...makeProps(
-            this.props,
+          <Text {...this.makeProps(
             builder,
             variant,
             surface,

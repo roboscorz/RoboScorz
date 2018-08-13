@@ -116,7 +116,8 @@ export interface ThemeBuilder {
     surface?: SurfaceBackground,
     variant?: ThemeVariant
   ): string;
-  build(variant?: ThemeVariant,
+  build(
+    variant?: ThemeVariant,
     surface?: SurfaceBackground,
     emphasis?: TextEmphasis
   ): ThemeData;

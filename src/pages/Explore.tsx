@@ -3,6 +3,9 @@ import { View, StyleSheet, MapViewRegion, Animated } from 'react-native';
 import MapView, { AnimatedRegion } from 'react-native-maps';
 import { ThemeConsumer } from '../theme';
 import { SearchSheet } from '../components/SearchSheet';
+import { NavigationScreenOptions } from 'react-navigation';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { TabBarIcon } from '../theme/components/TabBarIcon';
 
 interface ExploreStateProps { }
 
@@ -14,6 +17,10 @@ interface ExploreState {
 export default class Explore extends Component<{}, ExploreState> {
   private mapRef: RefObject<MapView> = React.createRef();
   private searchRef: RefObject<SearchSheet> = React.createRef();
+
+  static navigationOptions: NavigationScreenOptions = {
+    tabBarIcon: options => <TabBarIcon name="location-on" {...options}/>
+  };
 
   constructor(props: ExploreStateProps) {
     super(props);

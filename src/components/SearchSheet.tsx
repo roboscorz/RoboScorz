@@ -15,7 +15,7 @@ import { SearchBar } from './SearchBar';
 const Screen = {
   width: Dimensions.get('window').width,
   height: Platform.OS === 'ios' ?
-    Dimensions.get('window').height - 49 : Dimensions.get('window').height - 20
+    Dimensions.get('window').height - 52 : Dimensions.get('window').height - 68
 };
 
 export interface SearchSheetProps {

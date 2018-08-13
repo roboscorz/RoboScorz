@@ -42,6 +42,8 @@ target 'RoboScorz' do
   pod 'Google-Maps-iOS-Utils' # Remove this line if you don't want to support GoogleMaps on iOS
   pod 'Interactable', :path => '../node_modules/react-native-interactable'
 
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
 end
 
 post_install do |installer|

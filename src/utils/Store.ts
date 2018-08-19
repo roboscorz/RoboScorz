@@ -73,6 +73,7 @@ export abstract class Store<T extends Transport, E extends Entity<any>> {
     this.entity = null;
     return this.transport.node(id).then((node) => {
       const entity = new this.entityClass(node, this);
+      this.fetchState = EntityState.DONE;
       this.entity = entity;
       return entity;
     }).catch((error) => {
@@ -146,8 +147,8 @@ export abstract class Store<T extends Transport, E extends Entity<any>> {
     this.saveState = EntityState.PENDING;
     this.beforeSave(entity, optimistic);
     return this.transport.mutate(entity.toJS).then((node) => {
-      this.saveState = EntityState.DONE;
       const savedEntity = new this.entityClass(node, this);
+      this.saveState = EntityState.DONE;
       this.afterSave(savedEntity);
       return savedEntity;
     }).catch((error) => {

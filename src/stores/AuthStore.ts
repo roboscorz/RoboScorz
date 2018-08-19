@@ -2,9 +2,9 @@ import { observable, action } from 'mobx';
 import { User } from '../entity/User';
 import { ApolloClient } from 'apollo-client';
 import { NormalizedCacheObject } from 'apollo-cache-inmemory';
-import { UserStore } from './UserStore';
 import gql from 'graphql-tag';
 import { AsyncStorage } from 'react-native';
+import stores from '.';
 
 export enum AuthState {
   UNAUTHENTICATED,
@@ -32,16 +32,14 @@ interface LoginData {
 
 export class AuthStore {
   private client: ApolloClient<NormalizedCacheObject>;
-  private userStore: UserStore;
   
   @observable authState: AuthState = AuthState.PENDING;
   @observable user: User | null = null;
   @observable token: string | null = null;
   @observable expires: number | null = null;
 
-  constructor(client: ApolloClient<NormalizedCacheObject>, userStore: UserStore) {
+  constructor(client: ApolloClient<NormalizedCacheObject>) {
     this.client = client;
-    this.userStore = userStore;
   }
 
   @action
@@ -81,7 +79,7 @@ export class AuthStore {
     }).then(async (res) => {
       if (res.data.login.token) {
         await AsyncStorage.setItem('token', res.data.login.token);
-        this.user = new User(res.data.login.user!, this.userStore);
+        this.user = new User(res.data.login.user!, stores.user);
         this.token = res.data.login.token;
         this.expires = res.data.login.expires;
         this.authState = AuthState.AUTHENTICATED;
@@ -116,7 +114,7 @@ export class AuthStore {
       }`
     }).then(async (res) => {
       if (res.data.authState.isLoggedIn) {
-        this.user = new User(res.data.authState.user!, this.userStore);
+        this.user = new User(res.data.authState.user!, stores.user);
         this.token = await AsyncStorage.getItem('token');
         this.expires = res.data.authState.expires;
         this.authState = AuthState.AUTHENTICATED;

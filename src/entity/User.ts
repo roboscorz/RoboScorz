@@ -2,6 +2,7 @@ import { observable, computed } from 'mobx';
 import { Entity } from '../utils/Entity';
 import { UserStore } from '../stores/UserStore';
 import { Node } from '../utils/schema';
+import gql from 'graphql-tag';
 
 export interface CreateUserInput {
   firstName: string;
@@ -49,13 +50,16 @@ export class User extends Entity<UserStore> implements IUser {
       providerId: this.providerId
     };
   }
-
-  fromJS(data: IUser) {
-    this.firstName = data.firstName;
-    this.lastName = data.lastName;
-    this.email = data.email;
-    this.provider = data.provider;
-    this.photoUrl = data.photoUrl;
-    this.providerId = data.providerId;
-  }
 }
+
+export const UserFragment = gql`
+  fragment UserFragment on User {
+    id
+    firstName
+    lastName
+    email
+    provider
+    providerId
+    photoUrl
+  }
+`;

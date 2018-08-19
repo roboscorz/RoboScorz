@@ -1,5 +1,5 @@
 import { Transport } from '../utils/Transport';
-import { IUser, CreateUserInput } from '../entity/User';
+import { IUser, CreateUserInput, UserFragment } from '../entity/User';
 import gql from 'graphql-tag';
 import { Connection } from '../utils/schema';
 import { ApolloQueryResult } from 'apollo-client';
@@ -11,15 +11,10 @@ export class UserTransport extends Transport {
       mutation: gql`
         {
           createUser(user: $user) {
-            id
-            firstName
-            lastName
-            email
-            provider
-            providerId
-            photoUrl
+            ...UserFragment
           }
         }
+        ${UserFragment}
       `,
       variables: {
         user: data
@@ -46,15 +41,10 @@ export class UserTransport extends Transport {
       query: gql`
         query UserById($id: ID!) {
           user(id: $id) {
-            id
-            firstName
-            lastName
-            email
-            provider
-            providerId
-            photoUrl
+            ...UserFragment
           }
         }
+        ${UserFragment}
       `,
       variables: {
         id

@@ -55,6 +55,7 @@ export abstract class Transport {
     first: number,
     after: string,
     filter: any,
-    orderBy: any[]
+    orderBy: any[],
+    dateRange?: any
   ): Promise<Connection<Node>>;
 }

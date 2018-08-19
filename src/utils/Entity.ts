@@ -36,12 +36,6 @@ export abstract class Entity<S extends Store<any, any>> {
   private saveHandler?: IReactionDisposer;
 
   /**
-   * Convert a plain JS object into an entity.
-   * @param obj The source object.
-   */
-  public abstract fromJS(obj: any): void;
-
-  /**
    * Convert the entity to a plain JS object.
    */
   public abstract get toJS(): any;

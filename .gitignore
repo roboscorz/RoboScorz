@@ -62,3 +62,6 @@ buck-out/
 # Jest
 #
 .jest/
+
+# Env files
+env.json

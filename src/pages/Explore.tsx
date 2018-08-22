@@ -58,7 +58,6 @@ export default class Explore extends Component<ExploreProps, ExploreState> {
         }
       }
     ).then((events) => {
-      console.log('loaded more events');
       this.setState({ loading: false });
     });
   }
@@ -84,7 +83,6 @@ export default class Explore extends Component<ExploreProps, ExploreState> {
         clearTimeout(this.regionChangeTimeout);
         // Make sure the maps is still before loading more events
         this.regionChangeTimeout = setTimeout(() => {
-          console.log(region, this.state.region);
           // If the region change count hasn't changed in 250 ms, load more events
           if (region === this.state.region) {
             // Load more events

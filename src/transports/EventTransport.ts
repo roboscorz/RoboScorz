@@ -1,4 +1,4 @@
-import { Transport } from '../utils/Transport';
+import { Transport, FindArgs } from '../utils/Transport';
 import { IEvent, EventFragment } from '../entity/Event';
 import gql from 'graphql-tag';
 import { Connection } from '../utils/schema';
@@ -8,6 +8,7 @@ import { Article } from '../entity/Article';
 import { Alliance } from '../entity/Alliance';
 import { Award } from '../entity/Award';
 import { Ranking } from '../entity/Ranking';
+import { Location, Units } from '../entity/Location';
 
 export class EventTransport extends Transport {
 
@@ -82,13 +83,56 @@ export class EventTransport extends Transport {
     });
   }
 
-  public find(
-    first: number,
-    after: string,
-    filter: any,
-    orderBy: any[],
-    dateRange?: any
+  public findByLocation(
+    location: Location,
+    distance: number,
+    units: Units,
+    args?: FindArgs
   ): Promise<Connection<IEvent>> {
+    return this.client.query<{ eventsByLocation: Connection<IEvent> }>({
+      query: gql`
+        query EventsQuery(
+            $location: LocationInput!,
+            $distance: Int!,
+            $units: Units!,
+            $first: Int, 
+            $after: String, 
+            $filter: EventFilter, 
+            $orderBy: [EventOrder], 
+            $dateRange: DateRange
+          ) {
+          eventsByLocation(
+            location: $location,
+            distance: $distance,
+            units: $units,
+            first: $first, 
+            after: $after, 
+            filter: $filter, 
+            orderBy: $orderBy, 
+            dateRange: $dateRange
+          ) {
+            edges {
+              node {
+                ...EventFragment
+              }
+            }
+          }
+        }
+        ${EventFragment}
+      `,
+      variables: {
+        location,
+        distance,
+        units,
+        ...args
+      }
+    }).then((res) => {
+      if (res.errors) throw res.errors;
+      return res.data.eventsByLocation;
+    });
+  }
+
+  public find(args: FindArgs): Promise<Connection<IEvent>> {
     return this.client.query<{ events: Connection<IEvent> }>({
       query: gql`
         query EventsQuery(
@@ -105,18 +149,16 @@ export class EventTransport extends Transport {
             orderBy: $orderBy, 
             dateRange: $dateRange
           ) {
-            ...EventFragment
+            edges {
+              node {
+                ...EventFragment
+              }
+            }
           }
         }
         ${EventFragment}
       `,
-      variables: {
-        first,
-        after,
-        filter,
-        orderBy,
-        dateRange
-      }
+      variables: args
     }).then((res) => {
       if (res.errors) throw res.errors;
       return res.data.events;
@@ -125,10 +167,7 @@ export class EventTransport extends Transport {
 
   public divisions(
     eventId: string,
-    first?: number,
-    after?: string,
-    filter?: any,
-    orderBy?: any[]
+    args?: FindArgs
   ): Promise<Connection<IEvent>> {
     return this.client.query<{ event: { divisions: Connection<IEvent> } }>({
       query: gql`
@@ -159,10 +198,7 @@ export class EventTransport extends Transport {
       `,
       variables: {
         eventId,
-        first,
-        after,
-        filter,
-        orderBy
+        ...args
       }
     }).then((res) => {
       if (res.errors) throw res.errors;
@@ -172,10 +208,7 @@ export class EventTransport extends Transport {
 
   public matches(
     eventId: string,
-    first?: number,
-    after?: string,
-    filter?: any,
-    orderBy?: any[]
+    args?: FindArgs
   ): Promise<Connection<IMatch>> {
     return this.client.query<{ event: { matches: Connection<IMatch> } }>({
       query: gql`
@@ -206,10 +239,7 @@ export class EventTransport extends Transport {
       `,
       variables: {
         eventId,
-        first,
-        after,
-        filter,
-        orderBy
+        ...args
       }
     }).then((res) => {
       if (res.errors) throw res.errors;
@@ -219,10 +249,7 @@ export class EventTransport extends Transport {
 
   public teams(
     eventId: string,
-    first?: number,
-    after?: string,
-    filter?: any,
-    orderBy?: any[]
+    args?: FindArgs
   ): Promise<Connection<ITeam>> {
     return this.client.query<{ event: { teams: Connection<ITeam> } }>({
       query: gql`
@@ -253,10 +280,7 @@ export class EventTransport extends Transport {
       `,
       variables: {
         eventId,
-        first,
-        after,
-        filter,
-        orderBy
+        ...args
       }
     }).then((res) => {
       if (res.errors) throw res.errors;

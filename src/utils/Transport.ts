@@ -2,6 +2,14 @@ import { ApolloClient } from 'apollo-client';
 import { NormalizedCacheObject } from 'apollo-cache-inmemory';
 import { Node, Connection } from './schema';
 
+export interface FindArgs {
+  first?: number;
+  after?: string;
+  filter?: any;
+  orderBy?: any[];
+  dateRange?: any;
+}
+
 /**
  * The abstract parent class of all transports.
  */
@@ -51,11 +59,5 @@ export abstract class Transport {
    * @param filter A filter.
    * @param orderBy Orders for the results.
    */
-  public abstract find(
-    first: number,
-    after: string,
-    filter: any,
-    orderBy: any[],
-    dateRange?: any
-  ): Promise<Connection<Node>>;
+  public abstract find(args: FindArgs): Promise<Connection<Node>>;
 }

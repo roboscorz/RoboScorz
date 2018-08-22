@@ -325,6 +325,13 @@ export class Event extends Entity<EventStore> implements IEvent {
       photoUrl: this.photoUrl
     };
   }
+
+  @computed get coordinates(): { latitude: number; longitude: number } {
+    return {
+      latitude: this.location!.lat,
+      longitude: this.location!.lon
+    };
+  }
 }
 
 export const EventFragment = gql`
@@ -359,11 +366,9 @@ export const EventFragment = gql`
     type
     website
     program
-    photoUrl(maxWidth: 600)
     location {
       lat
       lon
     }
-    placeId
   }
 `;

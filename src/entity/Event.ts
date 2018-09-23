@@ -9,7 +9,7 @@ import { Season } from './Season';
 import { Award } from './Award';
 import { Match } from './Match';
 import { Ranking } from './Ranking';
-import { Location } from './Location';
+import { Location, Units } from './Location';
 import { EventStore } from '../stores/EventStore';
 import { EntityState } from '../utils/Store';
 import gql from 'graphql-tag';
@@ -331,6 +331,33 @@ export class Event extends Entity<EventStore> implements IEvent {
       latitude: this.location!.lat,
       longitude: this.location!.lon
     };
+  }
+
+  public distance(from: Location, units: Units): number {
+    const lat1 = from.lat;
+    const lat2 = this.location!.lat;
+    const lon1 = from.lon;
+    const lon2 = this.location!.lon;
+    const radlat1 = Math.PI * lat1 / 180;
+    const radlat2 = Math.PI * lat2 / 180;
+    const theta = lon1 - lon2;
+    const radtheta = Math.PI * theta / 180;
+    let dist =
+      Math.sin(radlat1) *
+      Math.sin(radlat2) +
+      Math.cos(radlat1) *
+      Math.cos(radlat2) *
+      Math.cos(radtheta);
+    if (dist > 1) {
+      dist = 1;
+    }
+    dist = Math.acos(dist);
+    dist = dist * 180 / Math.PI;
+    dist = dist * 60 * 1.1515;
+    switch (units) {
+      case Units.MI: return Math.floor(dist);
+      case Units.KM: return Math.floor(dist * 1.609344);
+    }
   }
 }
 

@@ -9,6 +9,7 @@ import { inject, observer } from 'mobx-react';
 import { EventStore } from '../stores/EventStore';
 import { Units, Location } from '../entity/Location';
 import { Program } from '../entity/Team';
+import { Heading6 } from '../theme/components/text';
 
 interface ExploreProps { 
   event: EventStore;
@@ -19,6 +20,7 @@ interface ExploreState {
   ready: boolean;
   regionChangeCount: number;
   region: Region | null;
+  currentLocation: Location | null;
 }
 
 @inject('event')
@@ -38,13 +40,16 @@ export default class Explore extends Component<ExploreProps, ExploreState> {
       loading: true,
       ready: false,
       regionChangeCount: 0,
-      region: null
+      region: null,
+      currentLocation: null
     };
   }
 
-  async loadNearbyEvents(region: Region) {
+  async loadEvents(region: Region) {
     this.setState({ loading: true });
+    const position = await this.getCurrentLocation();
     this.props.event.findByLocation(
+      position,
       {
         lat: region.latitude,
         lon: region.longitude
@@ -86,7 +91,7 @@ export default class Explore extends Component<ExploreProps, ExploreState> {
           // If the region change count hasn't changed in 250 ms, load more events
           if (region === this.state.region) {
             // Load more events
-            if (!this.props.event.loadedAllMapEvents) this.loadNearbyEvents(region);
+            if (!this.props.event.loadedAllMapEvents) this.loadEvents(region);
           }
         }, 250);
       }
@@ -120,10 +125,11 @@ export default class Explore extends Component<ExploreProps, ExploreState> {
             longitudeDelta: 4
           };
           this.setState({
-            region
+            region,
+            currentLocation: position
           });
           this.mapRef.current.animateToRegion(region);
-          this.loadNearbyEvents(region);
+          this.loadEvents(region);
         }
       }
     });
@@ -167,6 +173,7 @@ export default class Explore extends Component<ExploreProps, ExploreState> {
                 <Marker
                   key={event.id}
                   title={event.name}
+                  description={event.distance(this.state.currentLocation!, Units.MI) + 'mi'}
                   coordinate={event.coordinates}
                   pinColor={this.getPinColor(event.program!)}
                 />

@@ -2,14 +2,13 @@ import { Store, EntityState } from '../utils/Store';
 import { EventTransport } from '../transports/EventTransport';
 import { Event } from '../entity/Event';
 import { observable, action } from 'mobx';
-import { TeamStore } from './TeamStore';
-import { MatchStore } from './MatchStore';
 import { Location, Units } from '../entity/Location';
 import { FindArgs } from '../utils/Transport';
 
 export class EventStore extends Store<EventTransport, Event> {
   @observable events: Event[] = [];
   @observable mapEvents: Event[] = [];
+  @observable nearbyEvents: Event[] = [];
   @observable loadedAllMapEvents: boolean = false;
 
   @observable mapEventsFetchState: EntityState = EntityState.PENDING;
@@ -47,14 +46,31 @@ export class EventStore extends Store<EventTransport, Event> {
   }
 
   @action
+  public findNearbyEvents(location: Location, max: number): Promise<Event[]> {
+    return this.transport.findByLocation(location, 100, Units.KM, { first: max }).then((value) => {
+      const events: Event[] = [];
+      for (const edge of value.edges) {
+        events.push(new Event(edge.node, this));
+      }
+      this.nearbyEvents = events.sort((a, b) => {
+        return a.distance(location, Units.KM) - b.distance(location, Units.KM);
+      });
+      return this.nearbyEvents;
+    }).catch((error) => {
+      throw error;
+    });
+  }
+
+  @action
   public findByLocation(
-    location: Location,
+    userLocation: Location,
+    searchLocation: Location,
     distance: number,
     units: Units,
     args?: FindArgs
   ): Promise<Event[]> {
     this.mapEventsFetchState = EntityState.PENDING;
-    return this.transport.findByLocation(location, distance, units, args).then((value) => {
+    return this.transport.findByLocation(searchLocation, distance, units, args).then((value) => {
       const newMapEvents: Event[] = [];
       for (const edge of value.edges) {
         newMapEvents.push(new Event(edge.node, this));
@@ -66,7 +82,9 @@ export class EventStore extends Store<EventTransport, Event> {
             return newEvent.id === oldEvent.id;
           });
         })
-      );
+      ).sort((a, b) => {
+        return a.distance(userLocation, Units.KM) - b.distance(userLocation, Units.KM);
+      });
       this.mapEventsFetchState = EntityState.DONE;
       return this.mapEvents;
     }).catch((error) => {

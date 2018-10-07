@@ -1,5 +1,5 @@
 import React, { Component, RefObject } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import { ThemeConsumer } from '../theme';
 import { SearchSheet } from '../components/SearchSheet';
@@ -10,6 +10,7 @@ import { EventStore } from '../stores/EventStore';
 import { Units, Location } from '../entity/Location';
 import { Program } from '../entity/Team';
 import { Heading6 } from '../theme/components/text';
+import { EventItem } from '../components/EventItem';
 
 interface ExploreProps { 
   event: EventStore;
@@ -179,7 +180,11 @@ export default class Explore extends Component<ExploreProps, ExploreState> {
                 />
               ))}
             </MapView>
-            <SearchSheet ref={this.searchRef}/>
+            <SearchSheet ref={this.searchRef}>
+              {this.props.event.mapEvents.map(event => (
+                <EventItem key={event.id} event={event}/>
+              ))}
+            </SearchSheet>
           </View>
         )}
       </ThemeConsumer>

@@ -6,7 +6,9 @@ import {
   View,
   Platform,
   NativeSyntheticEvent,
-  TextInputFocusEventData
+  TextInputFocusEventData,
+  ScrollView,
+  GestureResponderEvent
 } from 'react-native';
 import { Sheet } from '../theme/components/Sheet';
 import Interactable from 'react-native-interactable';
@@ -23,18 +25,48 @@ export interface SearchSheetProps {
   onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
 }
 
-export class SearchSheet extends Component<SearchSheetProps> {
+interface SearchSheetState {
+  allowScroll: boolean;
+}
+
+export class SearchSheet extends Component<SearchSheetProps, SearchSheetState> {
   private _deltaY: Animated.Value;
   private interactableRef: RefObject<any> = React.createRef();
+  private scrollViewRef: RefObject<ScrollView> = React.createRef();
   
   constructor(props: any) {
     super(props);
+    this.state = {
+      allowScroll: false
+    };
     this._deltaY = new Animated.Value(Screen.height - 100);
   }
 
   public collapse() {
     if (this.interactableRef.current) {
-      this.interactableRef.current.snapTo({ index: 2 });
+      // this.interactableRef.current.snapTo({ index: 1 });
+      // this.scrollToTop();
+    }
+  }
+
+  private scrollToTop() {
+    if (this.scrollViewRef.current) {
+      this.scrollViewRef.current.scrollTo({ y: 0, animated: true });
+    }
+  }
+
+  private onSnap(e: Interactable.ISnapEvent) {
+    this.setState({
+      allowScroll: e.nativeEvent.id === 'top'
+    });
+  }
+
+  private onDrag(e: Interactable.IDragEvent) {
+    if (e.nativeEvent.state === 'end' && (e.nativeEvent as any).targetSnapPointId === 'top') {
+      this.setState({ allowScroll: true });
+    } else {
+      this.scrollToTop();
+      this.setState({ allowScroll: false });
     }
   }
 
@@ -45,10 +77,23 @@ export class SearchSheet extends Component<SearchSheetProps> {
           ref={this.interactableRef}
           animatedNativeDriver={true}
           verticalOnly={true}
-          snapPoints={[{ y: 25 }, { y: Screen.height - 200 }, { y: Screen.height - 80 }]}
-          boundaries={{ top: -300 }}
+          snapPoints={[
+            {
+              y: Screen.height - 200
+            },
+            {
+              y: Screen.height - 80
+            },
+            {
+              id: 'top',
+              y: 25
+            }
+          ]}
+          onSnap={e => this.onSnap(e)}
+          onDrag={e => this.onDrag(e)}
           initialPosition={{ y: Screen.height - 200 }}
-          animatedValueY={this._deltaY}>
+          animatedValueY={this._deltaY}
+        >
           <Sheet style={styles.sheet}>
             <View style={styles.grab}/>
             <SearchBar
@@ -56,17 +101,26 @@ export class SearchSheet extends Component<SearchSheetProps> {
               style={styles.searchBar}
               onFocus={(e) => {
                 if (this.interactableRef.current) {
-                  this.interactableRef.current.snapTo({ index: 0 });
+                  this.interactableRef.current.snapTo({ index: 2 });
                 }
                 if (this.props.onFocus) this.props.onFocus(e);
               }}
               onBlur={(e) => {
                 if (this.interactableRef.current) {
-                  this.interactableRef.current.snapTo({ index: 1 });
+                  this.interactableRef.current.snapTo({ index: 0 });
                 }
                 if (this.props.onBlur) this.props.onBlur(e);
               }}
             />
+            <ScrollView
+              bounces={false}
+              style={styles.scrollView}
+              scrollEnabled={this.state.allowScroll}
+              showsVerticalScrollIndicator={this.state.allowScroll}
+              ref={this.scrollViewRef}
+            >
+              {this.props.children}
+            </ScrollView>
           </Sheet>
         </Interactable.View>
       </View>
@@ -83,7 +137,7 @@ const styles = StyleSheet.create({
     right: 0
   },
   sheet: {
-    minHeight: Screen.height + 300,
+    minHeight: Screen.height + 600,
     width: '100%'
   },
   grab: {
@@ -99,5 +153,10 @@ const styles = StyleSheet.create({
   searchBar: {
     marginLeft: 12,
     marginRight: 12
+  },
+  scrollView: {
+    flex: 1,
+    padding: 8,
+    marginTop: 16
   }
 });
